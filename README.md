@@ -14,7 +14,7 @@ The first file implement the exploring ant. It gets the CSV source file as input
 
 The second file implements the hunting ant. It requires a graph serialized by TSP5explorer.py to a file on the same directory, and produce as output the serialization to disk of a graph containing the 2 solutions. Hunting ants are used to hunt for solutions.
 
-In order to print the 2 cheminies the print_results.py file should be executed.
+The explorer takes longer to run, cause it uses a library to query nodes by distance, and cause the hunter employs a clustering mechanism that after some iterations improve the computing efficiency. For this reason a graph serialized by the exploring ant is provided. In order to print the 2 cheminies found by the explorer the print_results.py file should be executed.
 
 TSP5Libs.py contains some common libraries.
 
