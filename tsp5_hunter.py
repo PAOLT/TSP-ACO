@@ -107,9 +107,9 @@ def h_ant (g, N, origin, colony, alpha):
     forced = False
 
     while n < len(g):
-        if (n % tree_refresh_interval) == 0:
-            log(verbose, 'Refreshing the tree...')
-            NN, x, y, T = refresh_tree(NN, x, y, vis)
+        # if (n % tree_refresh_interval) == 0:
+        #     log(verbose, 'Refreshing the tree...')
+        #     NN, x, y, T = refresh_tree(NN, x, y, vis)
 
         if not vis[int(node)]:
             #scan edges - returns clu_n, clu_w, tot_fer, edges
@@ -127,7 +127,7 @@ def h_ant (g, N, origin, colony, alpha):
                 add_edge(g, node, edge['nn'], edge['edge'], "way", edge['w'], 0, 0, 0)
                 edges = [edge]
 
-            if edges != []: #ok
+            if edges != []: 
                 all_weight += edges[0]['w']
                 stk.append({'cn':node, 'edges':edges, 'clu':cluster_config, 'batch_num':0, 'i':0, 't_f':tot_feromone})
                 node = edges[0]['nn']
@@ -137,7 +137,7 @@ def h_ant (g, N, origin, colony, alpha):
                 all_weight -= (cluster_config['w'])
                 s = stk.pop()
                 node = s['cn']
-                log(verbose, 'Stepping back to cluster {0}'.format(node))
+                #log(verbose, 'Stepping back to cluster {0}'.format(node))
             else: #and not force
                 all_weight += math.sqrt((N[int(node)]['x']-N[int(origin)]['x'])**2 + (N[int(node)]['y']-N[int(origin)]['y'])**2)
                 cluster_config = {'en':node, 'w':0, 'n':1} if clu not in g[node].keys() else g[node][clu]
@@ -146,40 +146,40 @@ def h_ant (g, N, origin, colony, alpha):
                 log(verbose, '{0} nodes visited. Now closing the loop from node {1}'.format(str(n), node))
                 log(verbose, '============================')
         else:
+        #the node has been already visited once, so we are getting back from a node being an edge's target on its edges list
+            #loading the step status from the step
             cluster_config = s['clu']
             edges = s['edges']
             batch_num = s['batch_num']
             i = s['i']
             tot_feromone = s['t_f']
 
+            #releasing the weight of the failing edge and try the next edge
             all_weight = all_weight - edges[i]['w'] 
-            log (verbose, 'Back to node {0}'.format(node))            
+            #log (verbose, 'Back to node {0}'.format(node))            
             i = i+1 
+
+            #in case i is out of range re: edges, let's load the next batch from the graph
             if i > len(edges)-1:
                 batch_num += 1
                 i = 0
                 cluster_config, tot_feromone, edges = scan_edges(g, vis, node, origin, colony, batch_num, dim_batch, tot_feromone)
                     
+            # case when the next batch is empty - as all the edges have been tested unsuccesfully, we have to force an edge to a node
+            #might also be the case when we forced an edge to a node and its list of edges is empty - another edge has to be forced
             if edges == []:
                     #force the best edge 
-                    if batch_num == 0:                      
-                        i = 0
-                        #edges is already loaded, just point to the first element
-                        #in case of forced node, that's the only element available
+                    if s['batch_num'] == 0:
+                        edges = s['edges']
                     else:
                         batch_num = 0
-                        i = 0
                         cluster_config, tot_feromone, edges = scan_edges(g, vis, node, origin, colony, batch_num, dim_batch, tot_feromone)
-                    
-                    forced = True 
-                    #print('Node forced')                    
-
-            try:
-                all_weight += edges[i]['w'] 
-                stk.append({'cn':node, 'edges':edges, 'clu': cluster_config,'batch_num':batch_num, 'i':i, 't_f':tot_feromone})
-                node = edges[i]['nn'] 
-            except:
-                print('d')
+                    i = 0
+                    forced = True
+            
+            all_weight += edges[i]['w'] 
+            stk.append({'cn':node, 'edges':edges, 'clu': cluster_config,'batch_num':batch_num, 'i':i, 't_f':tot_feromone})
+            node = edges[i]['nn'] 
             
             #OLD CODE with step back
             # if edges == []:
@@ -282,11 +282,11 @@ try:
         term, weight = h_ant(g, N, origin, colony1, alpha)
         print('Ant #{0} in colony #1 returned with weight {1}'.format(str(i), str(weight)))
         #reduce feromone 
-        if i % reduce_feromone_freq == 0:
-            for n in g:
-                for e in g[n]:
-                    new_f1 = read_edge_prop(g, n, e, 'f1') * (1-feromone_reduction)
-                    update_edge(g, n, e, f1 = new_f1)
+        # if (i % reduce_feromone_freq) == 0:
+        #     for n in g:
+        #         for e in g[n]:
+        #             new_f1 = read_edge_prop(g, n, e, 'f1') * (1-feromone_reduction)
+        #             update_edge(g, n, e, f1 = new_f1)
         i +=1 
     print("End of colony #1 with weight {0}".format(str(weight)))
 
