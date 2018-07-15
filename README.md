@@ -11,6 +11,8 @@ The solution is composed of 3 Python files:
 - TSP5_hunter.py
 - TSP5Libs.py
 
+A Jupiter notebook has been posted to comment the code in details.
+
 The first file implement the exploring ant. It gets the CSV source file as input (must be on the same directory), and serialize the graph to a file on the same directory. Exploring ants are used to initialize the graph by finding the most useful edges.
 
 The second file implements the hunting ant. It requires a graph serialized by TSP5explorer.py to a file on the same directory, and produce as output the serialization to disk of a graph containing the 2 solutions. Hunting ants are used to hunt for solutions. In order to print the two solutions the graph should be queried for edges labelled "way1" and "way2".
